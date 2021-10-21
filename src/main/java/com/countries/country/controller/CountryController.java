@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,20 +21,25 @@ import com.countries.country.model.Country;
 import ch.qos.logback.core.recovery.ResilientSyslogOutputStream;
 
 @RestController
+@ConfigurationProperties(prefix="endpoint")
 @RequestMapping("/countryApp")
 public class CountryController {
+	
+	@Value("${countries.url}")
+	private String baseUrl;
 
 	@Autowired
 	private RestTemplate restTemplate;
+	
+	List<Country> allCountries = new ArrayList<Country>();
 
 	
 //	Get All Countries
 	@GetMapping("/countries")
 	public List<Country> getCountries() {
-
-		String url = "https://restcountries.com/v2/all";
-		Country[] responseEntity = restTemplate.getForObject(url, Country[].class);
-		return Arrays.asList(responseEntity);
+		Country[] responseEntity = restTemplate.getForObject(baseUrl, Country[].class);
+		allCountries = Arrays.asList(responseEntity);
+		return allCountries;
 	}
 	
 	
